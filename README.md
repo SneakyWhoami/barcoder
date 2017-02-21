@@ -28,12 +28,12 @@ To make:
 * adapt to your fancy cmake thingy
 
 Requirements:
-  NEEDED               libQt5Widgets.so.5
-  NEEDED               libQt5Gui.so.5
-  NEEDED               libQt5Core.so.5
-  NEEDED               libstdc++.so.6
-  NEEDED               libgcc_s.so.1
-  NEEDED               libc.so.6
+*  NEEDED               libQt5Widgets.so.5
+*  NEEDED               libQt5Gui.so.5
+*  NEEDED               libQt5Core.so.5
+*  NEEDED               libstdc++.so.6
+*  NEEDED               libgcc_s.so.1
+*  NEEDED               libc.so.6
   
   If you have qt5 installed, you can probably run this with no issues. I'm lazy and just stuck it into /usr/bin or some other place
   in my path.
