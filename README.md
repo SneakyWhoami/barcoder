@@ -25,6 +25,7 @@ To make:
 * follow your normal qmake procedure
 * OR
 * use qtcreator
+* OR
 * adapt to your fancy cmake thingy
 
 Requirements:
