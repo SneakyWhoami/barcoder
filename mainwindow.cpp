@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect(ui->centralWidget, SIGNAL(clicked()), qApp, SLOT(quit()));
 }
 
-void MainWindow::mousePressEvent ( QMouseEvent * event )
+void MainWindow::mousePressEvent ()
 {
     QApplication::quit();
 }
