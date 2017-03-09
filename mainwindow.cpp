@@ -2,73 +2,58 @@
 #include "ui_mainwindow.h"
 #include <QProcess>
 #include <QClipboard>
+#include "qqrencode.h"
+#include <dmtx.h>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QPixmap p;
-    // if more than one argument, assume last argument is a string to encode
-    //!! NOTE this may not work in Windows depending how app is started!
+    this->setWindowFlags(Qt::WindowStaysOnTopHint/*|Qt::X11BypassWindowManagerHint|Qt::FramelessWindowHint*/);
+    /*this->setWindowState(Qt::WindowFullScreen);*/
+
+    // the text that I want encoded
+    QString inputText;
     if (QApplication::arguments().length() > 1) {
-       // qDebug() << QApplication::arguments().last();
-        QProcess dmtx;
-        dmtx.start("dmtxwrite", QStringList() << "-s" << "40x40");
-        dmtx.waitForStarted();
-
-        dmtx.write(QApplication::arguments().last().toUtf8());
-        dmtx.closeWriteChannel();
-        dmtx.waitForFinished();
-
-        QByteArray result = dmtx.readAll();
-        p.loadFromData(result,"PNG");
-        ui->label->setPixmap(p);
-
-        ////////////////////////////////////////////////////
-        dmtx.start("qrencode", QStringList() << "-o" << "-");
-        dmtx.waitForStarted();
-
-        dmtx.write(QApplication::arguments().last().toUtf8());
-        dmtx.closeWriteChannel();
-        dmtx.waitForFinished();
-
-        result = dmtx.readAll();
-        p.loadFromData(result,"PNG");
-        ui->label_2->setPixmap(p);
-//        ui->label->setPixmap();
+        inputText = QApplication::arguments().last();
     } else {
-        QClipboard *clipboard = QGuiApplication::clipboard();
-      //  qDebug() << clipboard->text();
-        QProcess dmtx;
-        dmtx.start("dmtxwrite", QStringList() << "-s" << "40x40");
-        dmtx.waitForStarted();
-
-        dmtx.write(clipboard->text().toUtf8());
-        dmtx.closeWriteChannel();
-        dmtx.waitForFinished();
-
-        QByteArray result = dmtx.readAll();
-        p.loadFromData(result,"PNG");
-        ui->label->setPixmap(p);
-
-        ////////////////////////////////////////////////////
-        dmtx.start("qrencode", QStringList() << "-o" << "-");
-        dmtx.waitForStarted();
-
-        dmtx.write(clipboard->text().toUtf8());
-        dmtx.closeWriteChannel();
-        dmtx.waitForFinished();
-
-        result = dmtx.readAll();
-        p.loadFromData(result,"PNG");
-        ui->label_2->setPixmap(p);
+        inputText = QGuiApplication::clipboard()->text();
     }
+
+    // DATAMATRIX STUFF START
+    DmtxEncode *enc;
+    int err = 0;
+
+    enc = dmtxEncodeCreate();
+    /* Read input data into buffer */
+    err = dmtxEncodeDataMatrix(enc, inputText.length(), (unsigned char*)inputText.toLocal8Bit().data());
+    QImage dmatrix(enc->image->pxl, enc->image->width, enc->image->height, QImage::Format_RGB888);
+    ui->label->setPixmap(QPixmap::fromImage(dmatrix).scaled(240,240));
+    dmtxEncodeDestroy(&enc);
+    // DATAMATRIX STUFF END
+
+
+    // QRCODE STUFF START
+    QQREncode encoder;
+    encoder.encode(inputText);
+    QImage qrcode = encoder.toQImage().scaled(240,240);
+    ui->label_2->setPixmap(QPixmap::fromImage(qrcode));
+    // QRCODE STUFF END
+
+    // COMPENSATE FOR DMATRIX FAILURE USING INVERTED QRCODE START
+    if (err == 0) {
+        qrcode.invertPixels();
+        ui->label->setPixmap(QPixmap::fromImage(qrcode));
+    }
+    // COMPENSATE FOR DMATRIX FAILURE USING INVERTED QRCODE END
+
+
     this->updateGeometry();
-    //connect(ui->centralWidget, SIGNAL(clicked()), qApp, SLOT(quit()));
 }
 
-void MainWindow::mousePressEvent (QMouseEvent * event)
+void MainWindow::mousePressEvent ( QMouseEvent * event )
 {
     QApplication::quit();
 }

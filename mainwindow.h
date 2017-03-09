@@ -3,6 +3,24 @@
 
 #include <QMainWindow>
 
+typedef struct {
+   char *inputPath;
+   char *outputPath;
+   char *format;
+   int codewords;
+   int marginSize;
+   int moduleSize;
+   int scheme;
+   int preview;
+   int rotate;
+   int sizeIdx;
+   int color[3];
+   int bgColor[3];
+   int mosaic;
+   int dpi;
+   int verbose;
+} UserOptions;
+
 namespace Ui {
 class MainWindow;
 }
