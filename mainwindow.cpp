@@ -25,13 +25,19 @@ MainWindow::MainWindow(QWidget *parent) :
     // DATAMATRIX STUFF START
     DmtxEncode *enc;
     int err = 0;
+    int len = inputText.length();
 
-    enc = dmtxEncodeCreate();
-    /* Read input data into buffer */
-    err = dmtxEncodeDataMatrix(enc, inputText.length(), (unsigned char*)inputText.toLocal8Bit().data());
-    QImage dmatrix(enc->image->pxl, enc->image->width, enc->image->height, QImage::Format_RGB888);
-    ui->label->setPixmap(QPixmap::fromImage(dmatrix).scaled(240,240));
-    dmtxEncodeDestroy(&enc);
+    // segfault for text longer than this. so dont bother
+    if (len > 1595) {
+        //    err = 1596;
+    } else {
+        enc = dmtxEncodeCreate();
+        /* Read input data into buffer */
+        err = dmtxEncodeDataMatrix(enc, len, (unsigned char*)inputText.toLocal8Bit().data());
+        QImage dmatrix(enc->image->pxl, enc->image->width, enc->image->height, QImage::Format_RGB888);
+        ui->label->setPixmap(QPixmap::fromImage(dmatrix).scaled(240,240));
+        dmtxEncodeDestroy(&enc);
+    }
     // DATAMATRIX STUFF END
 
 
