@@ -19,7 +19,15 @@ MainWindow::MainWindow(QWidget *parent) :
     if (QApplication::arguments().length() > 1) {
         inputText = QApplication::arguments().last();
     } else {
-        inputText = QGuiApplication::clipboard()->text();
+        QClipboard *clipboard = QGuiApplication::clipboard();
+        if(clipboard->supportsSelection()) {
+            // win, darwin etc?
+            inputText = QApplication::clipboard()->text();
+        } else {
+            // linux?
+            const QMimeData *mime = clipboard->mimeData (QClipboard::Selection);
+            inputText = mime->text ();
+        }
     }
 
     // DATAMATRIX STUFF START
