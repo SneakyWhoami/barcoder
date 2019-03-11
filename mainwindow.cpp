@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::mousePressEvent ( QMouseEvent * event )
 {
+    Q_UNUSED(event);
     QApplication::quit();
 }
 
